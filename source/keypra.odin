@@ -6,7 +6,7 @@ import rl "vendor:raylib"
 
 current_word: Word
 speed: f32 = 0.01
-max_length: i32 = 3
+max_length: i32 = 30
 score: i32 = 0
 max_words: int = 1
 debug_mode := true
@@ -47,7 +47,7 @@ update :: proc() -> Environment {
 		fmt.println("Pressed:", char, "Next:", next_word_char)
 
 		if char == next_word_char {
-			fmt.println("MATCH")
+			score += 1
 			current_word.correct_letters += 1
 		} else {
 			increase_difficulty()

@@ -1,2 +1,2 @@
 # keypra
-Typing practice program (customized for my screen and scaling)
+Typing practice game (customized for my screen and scaling)
