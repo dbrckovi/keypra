@@ -6,13 +6,13 @@ import rl "vendor:raylib"
 
 current_word: Word
 speed: f32 = 0.01
-max_length: i32 = 30
 score: i32 = 0
 max_words: int = 1
 debug_mode := true
 debug_message: string
 rng: PCG32
 font_size: f32 = 30
+blink := false
 
 main :: proc() {
 
@@ -51,6 +51,7 @@ update :: proc() -> Environment {
 			current_word.correct_letters += 1
 		} else {
 			increase_difficulty()
+			blink = true
 		}
 
 		if current_word.correct_letters == current_word.goal_sentence.len {
@@ -65,7 +66,12 @@ update :: proc() -> Environment {
 
 draw :: proc(env: Environment) {
 	rl.BeginDrawing()
-	rl.ClearBackground(rl.Color{22, 22, 22, 22})
+	if blink {
+		rl.ClearBackground(rl.Color{255, 255, 0, 255})
+		blink = false
+	} else {
+		rl.ClearBackground(rl.Color{22, 22, 22, 255})
+	}
 
 	draw_word(env)
 
@@ -74,7 +80,7 @@ draw :: proc(env: Environment) {
 }
 
 increase_difficulty :: proc() {
-	speed *= 1.1
+	speed *= 1.03
 }
 
 should_run :: proc() -> bool {

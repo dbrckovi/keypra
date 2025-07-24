@@ -34,7 +34,7 @@ draw_debug :: proc(env: Environment) {
 	// 	debug_message
 	// )
 
-	message: cstring = fmt.ctprint("Score:", score, "Speed:", speed, "Len:", max_length)
+	message: cstring = fmt.ctprint("Score:", score, "Speed:", speed, "Len:", get_max_length())
 
 	rl.DrawText(
 		message,

@@ -13,10 +13,10 @@ lowercase := "qwertzuiopasdfghjklyxcvbnm"
 uppercase := "QWERTZUIOPASDFGHJKLYXCVBNM"
 numbers := "1234567890"
 special := "~!\"#$%&/()=?*'+{}[]<>,.-;:_\\|"
-lowercase_ratio: f32 = .3
-uppercase_ratio: f32 = .6
-numbers_ratio: f32 = .9
-special_ratio: f32 = 1
+lowercase_weight: f32 = 0.9
+uppercase_weight: f32 = 0
+numbers_weight: f32 = 0.95
+special_weight: f32 = 1
 
 FixedString :: struct {
 	data: [30]u8,
@@ -29,26 +29,32 @@ Word :: struct {
 	correct_letters: i32,
 }
 
+get_max_length :: proc() -> i32 {
+	max_length := 3 + score / 100
+	if max_length > 30 {max_length = 30}
+	return max_length
+}
+
 generate_word :: proc(word: ^Word) {
-	for x: i32 = 0; x < max_length; x += 1 {
+	for x: i32 = 0; x < get_max_length(); x += 1 {
 		char := generate_next_char()
 		word.goal_sentence.data[x] = char
 	}
-	word.goal_sentence.len = max_length
+	word.goal_sentence.len = get_max_length()
 
 	word.location = {0, 0}
 	word.correct_letters = 0
 }
 
 generate_next_char :: proc() -> u8 {
-	type_value := pcg32_float(&rng)
 	char_source: ^string
+	type_value := pcg32_float(&rng)
 
-	if type_value <= lowercase_ratio {
+	if type_value <= lowercase_weight {
 		char_source = &lowercase
-	} else if type_value <= uppercase_ratio {
+	} else if type_value <= uppercase_weight {
 		char_source = &uppercase
-	} else if type_value <= numbers_ratio {
+	} else if type_value <= numbers_weight {
 		char_source = &numbers
 	} else {
 		char_source = &special
