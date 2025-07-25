@@ -37,7 +37,7 @@ Word :: struct {
 }
 
 get_max_length :: proc() -> i32 {
-	max_length := 30 + score / 50
+	max_length := 3 + score / 50
 	if max_length > 30 {max_length = 30}
 	return max_length
 }

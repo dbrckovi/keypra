@@ -9,12 +9,13 @@ INITIAL_SPEED: f32 = 1
 current_word: Word
 speed: f32 = INITIAL_SPEED
 score: i32 = 0
+mistakes: i32 = 0
 debug_mode := true
 debug_message: string
 rng: PCG32
 font_size: f32 = 50
 blink := false
-game_over_score: i32 = -1
+game_over := false
 
 main :: proc() {
 
@@ -42,11 +43,11 @@ init_game :: proc() {
 update_frame :: proc() -> Environment {
 	env: Environment = get_environment_data()
 
-	if game_over_score >= 0 {
+	if game_over {
 
 		if rl.IsKeyPressed(rl.KeyboardKey.SPACE) {
 			initialize_level()
-			game_over_score = -1
+			game_over = false
 		}
 
 	} else {
@@ -62,6 +63,7 @@ update_frame :: proc() -> Environment {
 				current_word.correct_letters += 1
 			} else {
 				increase_difficulty()
+				mistakes += 1
 				blink = true
 			}
 
@@ -73,7 +75,7 @@ update_frame :: proc() -> Environment {
 		}
 
 		if i32(current_word.location.y) > env.window_size.y {
-			game_over_score = score
+			game_over = true
 		}
 	}
 
@@ -89,7 +91,7 @@ draw_frame :: proc(env: Environment) {
 		rl.ClearBackground(rl.Color{22, 22, 22, 255})
 	}
 
-	if game_over_score >= 0 {
+	if game_over {
 		draw_game_over(env)
 	} else {
 		draw_word(env)
@@ -101,9 +103,11 @@ draw_frame :: proc(env: Environment) {
 
 draw_game_over :: proc(env: Environment) {
 	rl.DrawText("GAME OVER", i32(600), i32(300), i32(200), rl.ORANGE)
-	rl.DrawText("SCORE", i32(600), i32(650), i32(150), rl.GRAY)
-	rl.DrawText(fmt.ctprint(game_over_score), i32(1300), i32(600), i32(250), rl.YELLOW)
-	rl.DrawText("Press SPACE to restart", i32(600), i32(900), i32(70), rl.GRAY)
+	rl.DrawText("SCORE", i32(600), i32(650), i32(100), rl.GRAY)
+	rl.DrawText(fmt.ctprint(score), i32(1300), i32(600), i32(250), rl.GREEN)
+	rl.DrawText("MISTAKES", i32(600), i32(900), i32(100), rl.GRAY)
+	rl.DrawText(fmt.ctprint(mistakes), i32(1300), i32(850), i32(250), rl.MAROON)
+	rl.DrawText("Press SPACE to restart", i32(600), i32(1250), i32(70), rl.BLUE)
 }
 
 increase_difficulty :: proc() {
@@ -116,6 +120,7 @@ initialize_level :: proc() {
 	numbers_weight = NUMBERS_WEIGHT_INITIAL
 	special_weight = SPECIAL_WEIGHT_INITIAL
 	score = 0
+	mistakes = 0
 	speed = INITIAL_SPEED
 	current_word.location = {0, 0}
 	current_word.correct_letters = 0
