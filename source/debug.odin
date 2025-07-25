@@ -23,18 +23,11 @@ draw_debug :: proc(env: Environment) {
 		DEBUG_BACK_COLOR,
 	)
 
-	// message: cstring = fmt.ctprint(
-	// 	"Size: ",
-	// 	env.window_size,
-	// 	", Fps:",
-	// 	env.fps,
-	// 	", Scale:",
-	// 	env.window_scale_dpi,
-	// 	", Dbg:",
-	// 	debug_message
-	// )
-
-	message: cstring = fmt.ctprint("Score:", score, "Speed:", speed, "Len:", get_max_length())
+	message: cstring = fmt.ctprintf(
+		"Score: %d Speed: %.3f ",
+		score,
+		speed
+	)
 
 	rl.DrawText(
 		message,

@@ -9,14 +9,21 @@ UPPERCASE_COLOR: rl.Color : {255, 120, 120, 255}
 NUMBERS_COLOR: rl.Color : {180, 255, 120, 255}
 SPECIAL_COLOR: rl.Color : {180, 120, 255, 255}
 CORRECT_COLOR: rl.Color : {70, 70, 80, 255}
+
 lowercase := "qwertzuiopasdfghjklyxcvbnm"
 uppercase := "QWERTZUIOPASDFGHJKLYXCVBNM"
 numbers := "1234567890"
 special := "~!\"#$%&/()=?*'+{}[]<>,.-;:_\\|"
-lowercase_weight: f32 = 0.9
-uppercase_weight: f32 = 0
-numbers_weight: f32 = 0.95
-special_weight: f32 = 1
+
+LOWERCASE_WEIGHT_INITIAL: f32 = 20
+UPPERCASE_WEIGHT_INITIAL: f32 = 0
+NUMBERS_WEIGHT_INITIAL: f32 = 0
+SPECIAL_WEIGHT_INITIAL: f32 = 0
+
+lowercase_weight: f32 = LOWERCASE_WEIGHT_INITIAL
+uppercase_weight: f32 = UPPERCASE_WEIGHT_INITIAL
+numbers_weight: f32 = NUMBERS_WEIGHT_INITIAL
+special_weight: f32 = SPECIAL_WEIGHT_INITIAL
 
 FixedString :: struct {
 	data: [30]u8,
@@ -30,7 +37,7 @@ Word :: struct {
 }
 
 get_max_length :: proc() -> i32 {
-	max_length := 3 + score / 100
+	max_length := 30 + score / 50
 	if max_length > 30 {max_length = 30}
 	return max_length
 }
