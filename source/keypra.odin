@@ -112,12 +112,15 @@ draw_game_over :: proc(env: Environment) {
 
 increase_difficulty :: proc() {
 	speed *= 1.04
+	uppercase_weight = f32(score / 20)
+	number_weight = f32(score / 30)
+	special_weight = f32(score / 40)
 }
 
 initialize_level :: proc() {
 	uppercase_weight = UPPERCASE_WEIGHT_INITIAL
 	lowercase_weight = LOWERCASE_WEIGHT_INITIAL
-	numbers_weight = NUMBERS_WEIGHT_INITIAL
+	number_weight = NUMBERS_WEIGHT_INITIAL
 	special_weight = SPECIAL_WEIGHT_INITIAL
 	score = 0
 	mistakes = 0

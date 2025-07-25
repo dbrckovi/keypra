@@ -22,7 +22,7 @@ SPECIAL_WEIGHT_INITIAL: f32 = 0
 
 lowercase_weight: f32 = LOWERCASE_WEIGHT_INITIAL
 uppercase_weight: f32 = UPPERCASE_WEIGHT_INITIAL
-numbers_weight: f32 = NUMBERS_WEIGHT_INITIAL
+number_weight: f32 = NUMBERS_WEIGHT_INITIAL
 special_weight: f32 = SPECIAL_WEIGHT_INITIAL
 
 FixedString :: struct {
@@ -57,11 +57,21 @@ generate_next_char :: proc() -> u8 {
 	char_source: ^string
 	type_value := pcg32_float(&rng)
 
-	if type_value <= lowercase_weight {
+	total_weight := lowercase_weight + uppercase_weight + number_weight + special_weight
+
+	lowercase_value := lowercase_weight / total_weight
+	uppercase_value := uppercase_weight / total_weight + lowercase_value
+	number_value := number_weight / total_weight + uppercase_value
+	special_value := special_weight / total_weight + number_value
+
+	fmt.println(type_value)
+	fmt.println(lowercase_value, uppercase_value, number_value, special_value)
+
+	if type_value <= lowercase_value {
 		char_source = &lowercase
-	} else if type_value <= uppercase_weight {
+	} else if type_value <= uppercase_value {
 		char_source = &uppercase
-	} else if type_value <= numbers_weight {
+	} else if type_value <= number_value {
 		char_source = &numbers
 	} else {
 		char_source = &special
@@ -69,10 +79,6 @@ generate_next_char :: proc() -> u8 {
 
 	index := pcg32_int_max(&rng, len(char_source))
 	ret: u8 = char_source[index] // no cast needed
-
-	fmt.println("Source: ", char_source^)
-	fmt.println("Index: ", index)
-	fmt.println("Char: ", ret, " ('", rune(ret), "')") // print as char
 
 	return ret
 }
