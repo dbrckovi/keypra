@@ -64,9 +64,6 @@ generate_next_char :: proc() -> u8 {
 	number_value := number_weight / total_weight + uppercase_value
 	special_value := special_weight / total_weight + number_value
 
-	fmt.println(type_value)
-	fmt.println(lowercase_value, uppercase_value, number_value, special_value)
-
 	if type_value <= lowercase_value {
 		char_source = &lowercase
 	} else if type_value <= uppercase_value {
@@ -79,6 +76,22 @@ generate_next_char :: proc() -> u8 {
 
 	index := pcg32_int_max(&rng, len(char_source))
 	ret: u8 = char_source[index] // no cast needed
+	s := fmt.ctprintf("%r", ret)
+
+	fmt.println(
+		"Type value:",
+		type_value,
+		", Lowercase value:",
+		lowercase_value,
+		", Uppercase value:",
+		uppercase_value,
+		", Number value:",
+		number_value,
+		", Special value:",
+		special_value,
+		", Selected:",
+		s,
+	)
 
 	return ret
 }
