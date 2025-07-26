@@ -40,7 +40,6 @@ init_game :: proc() {
 	nanoseconds := time.time_to_unix_nano(now)
 	rng = pcg32_init(u64(nanoseconds))
 	initialize_level()
-	generate_word(&current_word)
 }
 
 update_frame :: proc() -> Environment {
@@ -132,6 +131,7 @@ initialize_level :: proc() {
 	speed = INITIAL_SPEED
 	current_word.location = {0, 0}
 	current_word.correct_letters = 0
+	generate_word(&current_word)
 }
 
 should_run :: proc() -> bool {
