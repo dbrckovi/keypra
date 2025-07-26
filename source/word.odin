@@ -2,6 +2,7 @@ package keypra
 
 import "core:fmt"
 import "core:strings"
+import "core:time"
 import rl "vendor:raylib"
 
 LOWERCASE_COLOR: rl.Color : {200, 120, 120, 255}
@@ -97,6 +98,16 @@ generate_next_char :: proc() -> u8 {
 }
 
 draw_word :: proc(env: Environment) {
+
+	duration := time.diff(last_pressed_rune_time, time.now())
+
+	dur_ms := time.duration_milliseconds(duration)
+	if dur_ms < 1000 {
+		alpha := 255 - dur_ms / 4
+		color: rl.Color = {128, 128, 128, u8(alpha)}
+		rl.DrawText(fmt.ctprint(last_pressed_rune), i32(1300), i32(600), i32(400), color)
+	}
+
 	text: string = string(current_word.goal_sentence.data[:current_word.goal_sentence.len])
 
 	for x := 0; x < len(text); x += 1 {

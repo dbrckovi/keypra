@@ -27,7 +27,7 @@ draw_debug :: proc(env: Environment) {
 		"Score: %d Mistakes: %d    Speed: %.3f ",
 		score,
 		mistakes,
-		speed
+		speed,
 	)
 
 	rl.DrawText(

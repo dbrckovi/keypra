@@ -11,11 +11,14 @@ speed: f32 = INITIAL_SPEED
 score: i32 = 0
 mistakes: i32 = 0
 debug_mode := true
-debug_message: string
+debug_message: cstring
 rng: PCG32
 font_size: f32 = 50
 blink := false
 game_over := false
+pressed_rune: rune
+last_pressed_rune: rune
+last_pressed_rune_time: time.Time
 
 main :: proc() {
 
@@ -52,13 +55,15 @@ update_frame :: proc() -> Environment {
 
 	} else {
 		current_word.location.y += speed * env.frame_time
-		char: rune = rl.GetCharPressed()
+		pressed_rune = rl.GetCharPressed()
 
-		if char != 0 {
+		if pressed_rune != 0 {
+			last_pressed_rune = pressed_rune
+			last_pressed_rune_time = time.now()
 			next_word_char := rune(current_word.goal_sentence.data[current_word.correct_letters])
-			fmt.println("Pressed:", char, "Next:", next_word_char)
+			fmt.println("Pressed:", pressed_rune, "Next:", next_word_char)
 
-			if char == next_word_char {
+			if pressed_rune == next_word_char {
 				score += 1
 				current_word.correct_letters += 1
 			} else {
@@ -84,7 +89,7 @@ update_frame :: proc() -> Environment {
 
 draw_frame :: proc(env: Environment) {
 	rl.BeginDrawing()
-	if blink {
+	if blink && !game_over {
 		rl.ClearBackground(rl.Color{255, 255, 0, 255})
 		blink = false
 	} else {
