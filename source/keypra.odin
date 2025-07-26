@@ -21,7 +21,6 @@ last_pressed_rune: rune
 last_pressed_rune_time: time.Time
 
 main :: proc() {
-
 	init_game()
 
 	for should_run() {
@@ -80,6 +79,7 @@ update_frame :: proc() -> Environment {
 
 		if i32(current_word.location.y) > env.window_size.y {
 			game_over = true
+			try_add_score(u32(score))
 		}
 	}
 
@@ -112,6 +112,8 @@ draw_game_over :: proc(env: Environment) {
 	rl.DrawText("MISTAKES", i32(600), i32(900), i32(100), rl.GRAY)
 	rl.DrawText(fmt.ctprint(mistakes), i32(1300), i32(850), i32(250), rl.MAROON)
 	rl.DrawText("Press SPACE to restart", i32(600), i32(1250), i32(70), rl.BLUE)
+
+	// TODO: Draw hiscore
 }
 
 increase_difficulty :: proc() {
