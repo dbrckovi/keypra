@@ -1,6 +1,7 @@
 package keypra
 
 import "core:fmt"
+import "core:os"
 import "core:time"
 import rl "vendor:raylib"
 
@@ -8,19 +9,21 @@ INITIAL_SPEED: f32 = 1
 
 current_word: Word
 speed: f32 = INITIAL_SPEED
-score: i32 = 0
-mistakes: i32 = 0
+current_score: Score
 debug_mode := true
 debug_message: cstring
 rng: PCG32
 font_size: f32 = 50
 blink := false
 game_over := false
+game_over_hiscore_place: i32 = -1
 pressed_rune: rune
 last_pressed_rune: rune
 last_pressed_rune_time: time.Time
 
 main :: proc() {
+
+	init_debug()
 	init_game()
 
 	for should_run() {
@@ -28,6 +31,10 @@ main :: proc() {
 		draw_frame(env)
 		free_all(context.temp_allocator)
 	}
+}
+
+//used to set a game in a state for debugging specific part
+init_debug :: proc() {
 }
 
 init_game :: proc() {
@@ -62,16 +69,16 @@ update_frame :: proc() -> Environment {
 			fmt.println("Pressed:", pressed_rune, "Next:", next_word_char)
 
 			if pressed_rune == next_word_char {
-				score += 1
+				current_score.score += 1
 				current_word.correct_letters += 1
 			} else {
 				increase_difficulty()
-				mistakes += 1
+				current_score.mistakes += 1
 				blink = true
 			}
 
 			if current_word.correct_letters == current_word.goal_sentence.len {
-				score += 1
+				current_score.score += 1
 				generate_word(&current_word)
 				increase_difficulty()
 			}
@@ -79,7 +86,7 @@ update_frame :: proc() -> Environment {
 
 		if i32(current_word.location.y) > env.window_size.y {
 			game_over = true
-			try_add_score(u32(score))
+			game_over_hiscore_place = try_add_score_hiscore(current_score)
 		}
 	}
 
@@ -106,21 +113,37 @@ draw_frame :: proc(env: Environment) {
 }
 
 draw_game_over :: proc(env: Environment) {
-	rl.DrawText("GAME OVER", i32(600), i32(300), i32(200), rl.ORANGE)
-	rl.DrawText("SCORE", i32(600), i32(650), i32(100), rl.GRAY)
-	rl.DrawText(fmt.ctprint(score), i32(1300), i32(600), i32(250), rl.GREEN)
-	rl.DrawText("MISTAKES", i32(600), i32(900), i32(100), rl.GRAY)
-	rl.DrawText(fmt.ctprint(mistakes), i32(1300), i32(850), i32(250), rl.MAROON)
-	rl.DrawText("Press SPACE to restart", i32(600), i32(1250), i32(70), rl.BLUE)
+	rl.DrawText("GAME OVER", 200, 100, 200, rl.ORANGE)
+	rl.DrawText("SCORE", 200, 450, 100, rl.GRAY)
+	rl.DrawText(fmt.ctprint(current_score.score), 850, 400, 250, rl.GREEN)
+	rl.DrawText("MISTAKES", 200, 800, 100, rl.GRAY)
+	rl.DrawText(fmt.ctprint(current_score.mistakes), 850, 750, 250, rl.MAROON)
+	rl.DrawText("Press SPACE to restart", 400, 1250, 70, rl.BLUE)
 
-	// TODO: Draw hiscore
+	rl.DrawText("HISCORES", 1800, 100, 120, rl.SKYBLUE)
+	rl.DrawText("SCORE", 1800, 220, 50, rl.GRAY)
+	rl.DrawText("MISTAKES", 2150, 220, 50, rl.GRAY)
+
+	for i: i32 = 0; i < len(hiscores); i += 1 {
+		if hiscores[i].score >= 0 {
+			score := fmt.ctprint(hiscores[i].score)
+			mistakes := fmt.ctprint(hiscores[i].mistakes)
+			y := 320 + 80 * i
+			rl.DrawText(score, 1800, y, 70, rl.GREEN)
+			rl.DrawText(mistakes, 2150, y, 70, rl.MAROON)
+
+			if game_over_hiscore_place == i {
+				rl.DrawText("you >", 1580, y, 70, rl.WHITE)
+			}
+		}
+	}
 }
 
 increase_difficulty :: proc() {
 	speed *= 1.04
-	uppercase_weight = f32(score / 20)
-	number_weight = f32(score / 30)
-	special_weight = f32(score / 40)
+	uppercase_weight = f32(current_score.score / 20)
+	number_weight = f32(current_score.score / 30)
+	special_weight = f32(current_score.score / 40)
 }
 
 initialize_level :: proc() {
@@ -128,11 +151,11 @@ initialize_level :: proc() {
 	lowercase_weight = LOWERCASE_WEIGHT_INITIAL
 	number_weight = NUMBERS_WEIGHT_INITIAL
 	special_weight = SPECIAL_WEIGHT_INITIAL
-	score = 0
-	mistakes = 0
+	current_score = {}
 	speed = INITIAL_SPEED
 	current_word.location = {0, 0}
 	current_word.correct_letters = 0
+	game_over_hiscore_place = -1
 	generate_word(&current_word)
 }
 

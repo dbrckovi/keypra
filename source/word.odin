@@ -28,23 +28,23 @@ special_weight: f32 = SPECIAL_WEIGHT_INITIAL
 
 FixedString :: struct {
 	data: [30]u8,
-	len:  i32,
+	len:  u32,
 }
 
 Word :: struct {
 	goal_sentence:   FixedString,
 	location:        [2]f32,
-	correct_letters: i32,
+	correct_letters: u32,
 }
 
-get_max_length :: proc() -> i32 {
-	max_length := 3 + score / 50
+get_max_length :: proc() -> u32 {
+	max_length := 3 + current_score.score / 50
 	if max_length > 30 {max_length = 30}
 	return max_length
 }
 
 generate_word :: proc(word: ^Word) {
-	for x: i32 = 0; x < get_max_length(); x += 1 {
+	for x: u32 = 0; x < get_max_length(); x += 1 {
 		char := generate_next_char()
 		word.goal_sentence.data[x] = char
 	}
@@ -114,7 +114,7 @@ draw_word :: proc(env: Environment) {
 		character := fmt.ctprint(text[x:x + 1])
 
 		color: rl.Color = UPPERCASE_COLOR
-		if current_word.correct_letters > i32(x) {color = CORRECT_COLOR} else {
+		if current_word.correct_letters > u32(x) {color = CORRECT_COLOR} else {
 			if strings.contains(
 				lowercase,
 				string(character),

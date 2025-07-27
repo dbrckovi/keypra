@@ -25,8 +25,8 @@ draw_debug :: proc(env: Environment) {
 
 	message: cstring = fmt.ctprintf(
 		"Score: %d Mistakes: %d    Speed: %.3f ",
-		score,
-		mistakes,
+		current_score.score,
+		current_score.mistakes,
 		speed,
 	)
 
