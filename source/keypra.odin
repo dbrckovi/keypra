@@ -23,8 +23,9 @@ last_pressed_rune_time: time.Time
 
 main :: proc() {
 
-	init_debug()
+	load_hiscore()
 	init_game()
+	init_debug()
 
 	for should_run() {
 		env: Environment = update_frame()
@@ -66,7 +67,6 @@ update_frame :: proc() -> Environment {
 			last_pressed_rune = pressed_rune
 			last_pressed_rune_time = time.now()
 			next_word_char := rune(current_word.goal_sentence.data[current_word.correct_letters])
-			fmt.println("Pressed:", pressed_rune, "Next:", next_word_char)
 
 			if pressed_rune == next_word_char {
 				current_score.score += 1
