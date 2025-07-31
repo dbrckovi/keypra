@@ -6,6 +6,8 @@ import "core:time"
 import rl "vendor:raylib"
 
 INITIAL_SPEED: f32 = 1
+SPEED_INCREASE_STANDARD: f32 = 1.03
+SPEED_INCREASE_PER_SECOND: f32 = 1.007
 
 current_word: Word
 speed: f32 = INITIAL_SPEED
@@ -20,6 +22,7 @@ game_over_hiscore_place: i32 = -1
 pressed_rune: rune
 last_pressed_rune: rune
 last_pressed_rune_time: time.Time
+last_timed_speed_increase: time.Time
 
 main :: proc() {
 
@@ -84,6 +87,12 @@ update_frame :: proc() -> Environment {
 			}
 		}
 
+		time_since_last_increase := time.diff(last_timed_speed_increase, time.now())
+		if time_since_last_increase > time.Second {
+			speed *= SPEED_INCREASE_PER_SECOND
+			last_timed_speed_increase = time.now()
+		}
+
 		if i32(current_word.location.y) > env.window_size.y {
 			game_over = true
 			game_over_hiscore_place = try_add_score_hiscore(current_score)
@@ -140,10 +149,10 @@ draw_game_over :: proc(env: Environment) {
 }
 
 increase_difficulty :: proc() {
-	speed *= 1.04
-	uppercase_weight = f32(current_score.score / 20)
-	number_weight = f32(current_score.score / 30)
-	special_weight = f32(current_score.score / 40)
+	speed *= SPEED_INCREASE_STANDARD
+	uppercase_weight = f32(current_score.score / 30)
+	number_weight = f32(current_score.score / 60)
+	special_weight = f32(current_score.score / 90)
 }
 
 initialize_level :: proc() {
@@ -156,6 +165,7 @@ initialize_level :: proc() {
 	current_word.location = {0, 0}
 	current_word.correct_letters = 0
 	game_over_hiscore_place = -1
+	last_timed_speed_increase = time.now()
 	generate_word(&current_word)
 }
 
