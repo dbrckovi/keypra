@@ -127,12 +127,16 @@ draw_frame :: proc(env: Environment) {
 
 draw_game_stats :: proc(env: Environment) {
 	s_current_score := fmt.ctprint(current_score.score)
-	rl.DrawText("Score", env.window_size.x - 400, 30, 50, rl.GRAY)
-	rl.DrawText(s_current_score, env.window_size.x - 200, 10, 100, rl.GREEN)
+	rl.DrawText("Score", env.window_size.x - 440, 30, 50, rl.GRAY)
+	rl.DrawText(s_current_score, env.window_size.x - 240, 10, 100, rl.GREEN)
 
 	s_current_mistakes := fmt.ctprint(current_score.mistakes)
-	rl.DrawText("Mistakes", env.window_size.x - 467, 130, 50, rl.GRAY)
-	rl.DrawText(s_current_mistakes, env.window_size.x - 200, 110, 100, rl.RED)
+	rl.DrawText("Mistakes", env.window_size.x - 507, 130, 50, rl.GRAY)
+	rl.DrawText(s_current_mistakes, env.window_size.x - 240, 110, 100, rl.RED)
+
+	s_speed := fmt.ctprintf("%.3f", speed)
+	rl.DrawText("Speed", env.window_size.x - 440, 230, 50, rl.GRAY)
+	rl.DrawText(s_speed, env.window_size.x - 240, 210, 100, rl.WHITE)
 }
 
 draw_game_over :: proc(env: Environment) {
