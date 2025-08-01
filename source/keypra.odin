@@ -22,6 +22,7 @@ game_over_hiscore_place: i32 = -1
 pressed_rune: rune
 last_pressed_rune: rune
 last_pressed_rune_time: time.Time
+last_pressed_rune_good: bool = true
 last_timed_speed_increase: time.Time
 
 main :: proc() {
@@ -72,10 +73,12 @@ update_frame :: proc() -> Environment {
 			next_word_char := rune(current_word.goal_sentence.data[current_word.correct_letters])
 
 			if pressed_rune == next_word_char {
+				last_pressed_rune_good = true
 				current_score.score += 1
 				current_word.correct_letters += 1
 			} else {
 				increase_difficulty()
+				last_pressed_rune_good = false
 				current_score.mistakes += 1
 				blink = true
 			}
@@ -105,7 +108,7 @@ update_frame :: proc() -> Environment {
 draw_frame :: proc(env: Environment) {
 	rl.BeginDrawing()
 	if blink && !game_over {
-		rl.ClearBackground(rl.Color{255, 255, 0, 255})
+		rl.ClearBackground(rl.Color{50, 0, 0, 255})
 		blink = false
 	} else {
 		rl.ClearBackground(rl.Color{22, 22, 22, 255})
@@ -115,10 +118,21 @@ draw_frame :: proc(env: Environment) {
 		draw_game_over(env)
 	} else {
 		draw_word(env)
+		draw_game_stats(env)
 	}
 
 	if debug_mode {draw_debug(env)}
 	rl.EndDrawing()
+}
+
+draw_game_stats :: proc(env: Environment) {
+	s_current_score := fmt.ctprint(current_score.score)
+	rl.DrawText("Score", env.window_size.x - 400, 30, 50, rl.GRAY)
+	rl.DrawText(s_current_score, env.window_size.x - 200, 10, 100, rl.GREEN)
+
+	s_current_mistakes := fmt.ctprint(current_score.mistakes)
+	rl.DrawText("Mistakes", env.window_size.x - 467, 130, 50, rl.GRAY)
+	rl.DrawText(s_current_mistakes, env.window_size.x - 200, 110, 100, rl.RED)
 }
 
 draw_game_over :: proc(env: Environment) {

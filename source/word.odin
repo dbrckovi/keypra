@@ -104,7 +104,8 @@ draw_word :: proc(env: Environment) {
 	dur_ms := time.duration_milliseconds(duration)
 	if dur_ms < 1000 {
 		alpha := 255 - dur_ms / 4
-		color: rl.Color = {128, 128, 128, u8(alpha)}
+		color: rl.Color
+		if last_pressed_rune_good {color = {128, 128, 128, u8(alpha)}} else {color = {128, 0, 0, u8(alpha)}}
 		rl.DrawText(fmt.ctprint(last_pressed_rune), i32(1300), i32(600), i32(400), color)
 	}
 
