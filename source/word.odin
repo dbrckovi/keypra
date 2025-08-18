@@ -98,19 +98,26 @@ generate_next_char :: proc() -> u8 {
 }
 
 draw_word :: proc(env: Environment) {
-
+	//draw last pressed key
 	duration := time.diff(last_pressed_rune_time, time.now())
-
 	dur_ms := time.duration_milliseconds(duration)
 	if dur_ms < 1000 {
 		alpha := 255 - dur_ms / 4
 		color: rl.Color
 		if last_pressed_rune_good {color = {128, 128, 128, u8(alpha)}} else {color = {128, 0, 0, u8(alpha)}}
-		rl.DrawText(fmt.ctprint(last_pressed_rune), i32(1300), i32(600), i32(400), color)
+		rl.DrawTextEx(
+			main_font,
+			fmt.ctprint(last_pressed_rune),
+			{f32(1300), f32(600)},
+			f32(600),
+			f32(400),
+			color,
+		)
 	}
 
 	text: string = string(current_word.goal_sentence.data[:current_word.goal_sentence.len])
 
+	//draw each letter in current word
 	for x := 0; x < len(text); x += 1 {
 		character := fmt.ctprint(text[x:x + 1])
 
@@ -122,11 +129,15 @@ draw_word :: proc(env: Environment) {
 			) {color = LOWERCASE_COLOR} else if strings.contains(uppercase, string(character)) {color = UPPERCASE_COLOR} else if strings.contains(numbers, string(character)) {color = NUMBERS_COLOR} else {color = SPECIAL_COLOR}
 		}
 
-		rl.DrawText(
+		rl.DrawTextEx(
+			main_font,
 			character,
-			i32(current_word.location.x + font_size * 0.8 * env.window_scale_dpi.x * f32(x)),
-			i32(current_word.location.y),
-			i32(font_size * env.window_scale_dpi.x),
+			{
+				f32(current_word.location.x + font_size * 0.8 * env.window_scale_dpi.x * f32(x)),
+				f32(current_word.location.y),
+			},
+			f32(font_size * env.window_scale_dpi.x),
+			16,
 			color,
 		)
 	}

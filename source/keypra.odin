@@ -2,6 +2,7 @@ package keypra
 
 import "core:fmt"
 import "core:os"
+import "core:path/filepath"
 import "core:time"
 import rl "vendor:raylib"
 
@@ -24,6 +25,7 @@ last_pressed_rune: rune
 last_pressed_rune_time: time.Time
 last_pressed_rune_good: bool = true
 last_timed_speed_increase: time.Time
+main_font: rl.Font
 
 main :: proc() {
 
@@ -40,13 +42,20 @@ main :: proc() {
 
 //used to set a game in a state for debugging specific part
 init_debug :: proc() {
+
 }
 
 init_game :: proc() {
+	exe_path := os.args[0]
+	exe_dir := filepath.dir(string(exe_path), context.temp_allocator)
+	os.set_current_directory(exe_dir)
+
 	rl.SetConfigFlags({.VSYNC_HINT, .WINDOW_RESIZABLE, .WINDOW_MAXIMIZED})
 	rl.SetTargetFPS(60)
 	rl.InitWindow(800, 600, "Forest")
 	rl.MaximizeWindow()
+	main_font = rl.LoadFontEx("font.ttf", 32, nil, 0)
+
 	now := time.now()
 	nanoseconds := time.time_to_unix_nano(now)
 	rng = pcg32_init(u64(nanoseconds))
