@@ -143,7 +143,7 @@ draw_frame :: proc(env: Environment) {
 
 	rl.DrawTexturePro(
 		virtual_texture.texture,
-		rl.Rectangle{0, 0, f32(virtual_w), -f32(virtual_h)}, // Source: flip Y for correct orientation
+		rl.Rectangle{0, 0, f32(virtual_w), -f32(virtual_h)},
 		rl.Rectangle{f32(offset_x), f32(offset_y), f32(dest_w), f32(dest_h)},
 		rl.Vector2{0, 0},
 		0,
@@ -155,7 +155,7 @@ draw_frame :: proc(env: Environment) {
 
 draw_game_stats :: proc(env: Environment) {
 	s_current_score := fmt.ctprint(current_score.score)
-	rl.DrawText("Score", NATIVE_RESOLUTION.x - 540, 30, 50, rl.GRAY)
+	rl.DrawText("Score", NATIVE_RESOLUTION.x - 607, 30, 50, rl.GRAY)
 	rl.DrawText(s_current_score, NATIVE_RESOLUTION.x - 340, 10, 100, rl.GREEN)
 
 	s_current_mistakes := fmt.ctprint(current_score.mistakes)
@@ -163,8 +163,28 @@ draw_game_stats :: proc(env: Environment) {
 	rl.DrawText(s_current_mistakes, NATIVE_RESOLUTION.x - 340, 110, 100, rl.RED)
 
 	s_speed := fmt.ctprintf("%.3f", speed)
-	rl.DrawText("Speed", NATIVE_RESOLUTION.x - 540, 230, 50, rl.GRAY)
+	rl.DrawText("Speed", NATIVE_RESOLUTION.x - 607, 230, 50, rl.GRAY)
 	rl.DrawText(s_speed, NATIVE_RESOLUTION.x - 340, 210, 100, rl.WHITE)
+
+	total_weight := lowercase_weight + uppercase_weight + number_weight + special_weight
+	s_lowercase := fmt.ctprintf("%.2f %%", lowercase_weight / total_weight * 100)
+	s_uppercase := fmt.ctprintf("%.2f %%", uppercase_weight / total_weight * 100)
+	s_number := fmt.ctprintf("%.2f %%", number_weight / total_weight * 100)
+	s_special := fmt.ctprintf("%.2f %%", special_weight / total_weight * 100)
+
+	rl.DrawText("Probabilities", NATIVE_RESOLUTION.x - 607, 400, 50, rl.BLUE)
+
+	rl.DrawText("Lowercase", NATIVE_RESOLUTION.x - 607, 470, 35, rl.GRAY)
+	rl.DrawText(s_lowercase, NATIVE_RESOLUTION.x - 340, 470, 35, rl.WHITE)
+
+	rl.DrawText("Uppercase", NATIVE_RESOLUTION.x - 607, 520, 35, rl.GRAY)
+	rl.DrawText(s_uppercase, NATIVE_RESOLUTION.x - 340, 520, 35, rl.WHITE)
+
+	rl.DrawText("Numbers", NATIVE_RESOLUTION.x - 607, 570, 35, rl.GRAY)
+	rl.DrawText(s_number, NATIVE_RESOLUTION.x - 340, 570, 35, rl.WHITE)
+
+	rl.DrawText("Special", NATIVE_RESOLUTION.x - 607, 620, 35, rl.GRAY)
+	rl.DrawText(s_special, NATIVE_RESOLUTION.x - 340, 620, 35, rl.WHITE)
 }
 
 draw_game_over :: proc(env: Environment) {
