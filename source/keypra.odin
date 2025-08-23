@@ -9,6 +9,7 @@ import rl "vendor:raylib"
 INITIAL_SPEED: f32 = 1
 SPEED_INCREASE_STANDARD: f32 = 1.03
 SPEED_INCREASE_PER_SECOND: f32 = 1.007
+NATIVE_RESOLUTION: [2]i32 = {1920, 1080}
 
 current_word: Word
 speed: f32 = INITIAL_SPEED
@@ -26,6 +27,7 @@ last_pressed_rune_time: time.Time
 last_pressed_rune_good: bool = true
 last_timed_speed_increase: time.Time
 main_font: rl.Font
+virtual_texture: rl.RenderTexture2D
 
 main :: proc() {
 
@@ -52,8 +54,10 @@ init_game :: proc() {
 
 	rl.SetConfigFlags({.VSYNC_HINT, .WINDOW_RESIZABLE, .WINDOW_MAXIMIZED})
 	rl.SetTargetFPS(60)
-	rl.InitWindow(800, 600, "Forest")
+	rl.InitWindow(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y, "Forest")
 	rl.MaximizeWindow()
+	virtual_texture = rl.LoadRenderTexture(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y)
+	rl.SetTextureFilter(virtual_texture.texture, rl.TextureFilter.TRILINEAR)
 	main_font = rl.LoadFontEx("font.ttf", 32, nil, 0)
 
 	now := time.now()
@@ -66,12 +70,10 @@ update_frame :: proc() -> Environment {
 	env: Environment = get_environment_data()
 
 	if game_over {
-
 		if rl.IsKeyPressed(rl.KeyboardKey.SPACE) {
 			initialize_level()
 			game_over = false
 		}
-
 	} else {
 		current_word.location.y += speed * env.frame_time
 		pressed_rune = rl.GetCharPressed()
@@ -105,7 +107,7 @@ update_frame :: proc() -> Environment {
 			last_timed_speed_increase = time.now()
 		}
 
-		if i32(current_word.location.y) > env.window_size.y {
+		if i32(current_word.location.y) > NATIVE_RESOLUTION.y {
 			game_over = true
 			game_over_hiscore_place = try_add_score_hiscore(current_score)
 		}
@@ -115,7 +117,9 @@ update_frame :: proc() -> Environment {
 }
 
 draw_frame :: proc(env: Environment) {
-	rl.BeginDrawing()
+	// Draw world to texture
+	rl.BeginTextureMode(virtual_texture)
+
 	if blink && !game_over {
 		rl.ClearBackground(rl.Color{50, 0, 0, 255})
 		blink = false
@@ -130,46 +134,68 @@ draw_frame :: proc(env: Environment) {
 		draw_game_stats(env)
 	}
 
+	rl.EndTextureMode()
+
+	// Draw texture to screen
+	rl.BeginDrawing()
+	rl.ClearBackground(rl.BLACK)
+	virtual_w := 1920
+	virtual_h := 1080
+	scale := min(f32(env.window_size.x) / f32(virtual_w), f32(env.window_size.y) / f32(virtual_h))
+	dest_w := i32(f32(virtual_w) * scale)
+	dest_h := i32(f32(virtual_h) * scale)
+	offset_x := (env.window_size.x - dest_w) / 2
+	offset_y := (env.window_size.y - dest_h) / 2
+
+	rl.DrawTexturePro(
+		virtual_texture.texture,
+		rl.Rectangle{0, 0, f32(virtual_w), -f32(virtual_h)}, // Source: flip Y for correct orientation
+		rl.Rectangle{f32(offset_x), f32(offset_y), f32(dest_w), f32(dest_h)},
+		rl.Vector2{0, 0},
+		0,
+		rl.WHITE,
+	)
+
 	if debug_mode {draw_debug(env)}
 	rl.EndDrawing()
 }
 
 draw_game_stats :: proc(env: Environment) {
 	s_current_score := fmt.ctprint(current_score.score)
-	rl.DrawText("Score", env.window_size.x - 440, 30, 50, rl.GRAY)
-	rl.DrawText(s_current_score, env.window_size.x - 240, 10, 100, rl.GREEN)
+	rl.DrawText("Score", NATIVE_RESOLUTION.x - 540, 30, 50, rl.GRAY)
+	rl.DrawText(s_current_score, NATIVE_RESOLUTION.x - 340, 10, 100, rl.GREEN)
 
 	s_current_mistakes := fmt.ctprint(current_score.mistakes)
-	rl.DrawText("Mistakes", env.window_size.x - 507, 130, 50, rl.GRAY)
-	rl.DrawText(s_current_mistakes, env.window_size.x - 240, 110, 100, rl.RED)
+	rl.DrawText("Mistakes", NATIVE_RESOLUTION.x - 607, 130, 50, rl.GRAY)
+	rl.DrawText(s_current_mistakes, NATIVE_RESOLUTION.x - 340, 110, 100, rl.RED)
 
 	s_speed := fmt.ctprintf("%.3f", speed)
-	rl.DrawText("Speed", env.window_size.x - 440, 230, 50, rl.GRAY)
-	rl.DrawText(s_speed, env.window_size.x - 240, 210, 100, rl.WHITE)
+	rl.DrawText("Speed", NATIVE_RESOLUTION.x - 540, 230, 50, rl.GRAY)
+	rl.DrawText(s_speed, NATIVE_RESOLUTION.x - 340, 210, 100, rl.WHITE)
 }
 
 draw_game_over :: proc(env: Environment) {
-	rl.DrawText("GAME OVER", 200, 100, 200, rl.ORANGE)
-	rl.DrawText("SCORE", 200, 450, 100, rl.GRAY)
-	rl.DrawText(fmt.ctprint(current_score.score), 850, 400, 250, rl.GREEN)
-	rl.DrawText("MISTAKES", 200, 800, 100, rl.GRAY)
-	rl.DrawText(fmt.ctprint(current_score.mistakes), 850, 750, 250, rl.MAROON)
-	rl.DrawText("Press SPACE to restart", 400, 1250, 70, rl.BLUE)
+	rl.DrawText("GAME OVER", 100, 50, 100, rl.ORANGE)
+	rl.DrawText("SCORE", 100, 225, 50, rl.GRAY)
+	rl.DrawText(fmt.ctprint(current_score.score), 425, 200, 125, rl.GREEN)
+	rl.DrawText("MISTAKES", 100, 400, 50, rl.GRAY)
+	rl.DrawText(fmt.ctprint(current_score.mistakes), 425, 375, 125, rl.MAROON)
+	rl.DrawText("Press SPACE to restart", 200, 625, 35, rl.BLUE)
 
-	rl.DrawText("HISCORES", 1800, 100, 120, rl.SKYBLUE)
-	rl.DrawText("SCORE", 1800, 220, 50, rl.GRAY)
-	rl.DrawText("MISTAKES", 2150, 220, 50, rl.GRAY)
+	rl.DrawText("HISCORES", 1000, 50, 60, rl.SKYBLUE)
+	rl.DrawText("SCORE", 1000, 125, 25, rl.GRAY)
+	rl.DrawText("MISTAKES", 1185, 125, 25, rl.GRAY)
 
 	for i: i32 = 0; i < len(hiscores); i += 1 {
 		if hiscores[i].score >= 0 {
 			score := fmt.ctprint(hiscores[i].score)
 			mistakes := fmt.ctprint(hiscores[i].mistakes)
-			y := 320 + 80 * i
-			rl.DrawText(score, 1800, y, 70, rl.GREEN)
-			rl.DrawText(mistakes, 2150, y, 70, rl.MAROON)
+			y := 175 + 40 * i
+			rl.DrawText(score, 1000, y, 35, rl.GREEN)
+			rl.DrawText(mistakes, 1185, y, 35, rl.MAROON)
 
 			if game_over_hiscore_place == i {
-				rl.DrawText("you >", 1580, y, 70, rl.WHITE)
+				rl.DrawText("you >", 890, y, 35, rl.WHITE)
 			}
 		}
 	}

@@ -6,14 +6,13 @@ import rl "vendor:raylib"
 DEBUG_BACK_COLOR := rl.Color{22, 22, 22, 155}
 DEBUG_FORE_COLOR := rl.Color{255, 255, 255, 150}
 DEBUG_FONT_SIZE: i32 : 15
+DEBUG_PADDING :: 3
 
 //Draws debug panel
 draw_debug :: proc(env: Environment) {
 
 	//bottom panel
-	padding: i32 = i32(3 * env.window_scale_dpi.y)
-	font_size := i32(f32(DEBUG_FONT_SIZE) * env.window_scale_dpi.y)
-	debug_height := font_size + 2 * padding
+	debug_height := i32(font_size) + 2 * DEBUG_PADDING
 
 	rl.DrawRectangle(
 		0,
@@ -33,9 +32,9 @@ draw_debug :: proc(env: Environment) {
 
 	rl.DrawText(
 		message,
-		padding,
-		env.window_size.y - debug_height + padding,
-		font_size,
+		DEBUG_PADDING,
+		env.window_size.y - debug_height + DEBUG_PADDING,
+		i32(font_size),
 		DEBUG_FORE_COLOR,
 	)
 }

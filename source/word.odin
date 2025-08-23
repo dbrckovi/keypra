@@ -108,9 +108,9 @@ draw_word :: proc(env: Environment) {
 		rl.DrawTextEx(
 			main_font,
 			fmt.ctprint(last_pressed_rune),
-			{f32(1300), f32(600)},
-			f32(600),
-			f32(400),
+			{f32(900), f32(400)},
+			f32(300),
+			f32(200),
 			color,
 		)
 	}
@@ -133,10 +133,10 @@ draw_word :: proc(env: Environment) {
 			main_font,
 			character,
 			{
-				f32(current_word.location.x + font_size * 0.8 * env.window_scale_dpi.x * f32(x)),
+				f32(current_word.location.x + font_size * 0.6 * f32(x)),
 				f32(current_word.location.y),
 			},
-			f32(font_size * env.window_scale_dpi.x),
+			f32(font_size),
 			16,
 			color,
 		)
