@@ -33,18 +33,12 @@ main :: proc() {
 
 	load_hiscore()
 	init_game()
-	init_debug()
 
 	for should_run() {
 		env: Environment = update_frame()
 		draw_frame(env)
 		free_all(context.temp_allocator)
 	}
-}
-
-//used to set a game in a state for debugging specific part
-init_debug :: proc() {
-
 }
 
 init_game :: proc() {
@@ -156,7 +150,6 @@ draw_frame :: proc(env: Environment) {
 		rl.WHITE,
 	)
 
-	if debug_mode {draw_debug(env)}
 	rl.EndDrawing()
 }
 
