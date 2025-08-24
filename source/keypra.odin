@@ -48,7 +48,7 @@ init_game :: proc() {
 
 	rl.SetConfigFlags({.VSYNC_HINT, .WINDOW_RESIZABLE, .WINDOW_MAXIMIZED})
 	rl.SetTargetFPS(60)
-	rl.InitWindow(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y, "Forest")
+	rl.InitWindow(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y, "Keypra")
 	rl.MaximizeWindow()
 	virtual_texture = rl.LoadRenderTexture(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y)
 	rl.SetTextureFilter(virtual_texture.texture, rl.TextureFilter.TRILINEAR)
