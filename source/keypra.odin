@@ -1,8 +1,7 @@
 package keypra
 
+import "core:c"
 import "core:fmt"
-import "core:os"
-import "core:path/filepath"
 import "core:time"
 import rl "vendor:raylib"
 
@@ -29,22 +28,8 @@ last_timed_speed_increase: time.Time
 main_font: rl.Font
 virtual_texture: rl.RenderTexture2D
 
-main :: proc() {
-
+init :: proc() {
 	load_hiscore()
-	init_game()
-
-	for should_run() {
-		env: Environment = update_frame()
-		draw_frame(env)
-		free_all(context.temp_allocator)
-	}
-}
-
-init_game :: proc() {
-	exe_path := os.args[0]
-	exe_dir := filepath.dir(string(exe_path), context.temp_allocator)
-	os.set_current_directory(exe_dir)
 
 	rl.SetConfigFlags({.VSYNC_HINT, .WINDOW_RESIZABLE, .WINDOW_MAXIMIZED})
 	rl.SetTargetFPS(60)
@@ -52,12 +37,18 @@ init_game :: proc() {
 	rl.MaximizeWindow()
 	virtual_texture = rl.LoadRenderTexture(NATIVE_RESOLUTION.x, NATIVE_RESOLUTION.y)
 	rl.SetTextureFilter(virtual_texture.texture, rl.TextureFilter.TRILINEAR)
-	main_font = rl.LoadFontEx("font.ttf", 32, nil, 0)
+	main_font = rl.LoadFontEx("assets/font.ttf", 32, nil, 0)
 
 	now := time.now()
 	nanoseconds := time.time_to_unix_nano(now)
 	rng = pcg32_init(u64(nanoseconds))
 	initialize_level()
+}
+
+update :: proc() {
+	env: Environment = update_frame()
+	draw_frame(env)
+	free_all(context.temp_allocator)
 }
 
 update_frame :: proc() -> Environment {
@@ -243,5 +234,13 @@ should_run :: proc() -> bool {
 	}
 
 	return true
+}
+
+shutdown :: proc() {
+	rl.CloseWindow()
+}
+
+parent_window_size_changed :: proc(w, h: int) {
+	rl.SetWindowSize(c.int(w), c.int(h))
 }
 
