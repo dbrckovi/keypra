@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Odin Build",
+    "command": "./build_desktop.sh"
+    //"args": ["build", ".", "-debug"]
+  },
+  {
+    "label": "Odin Run",
+    "command": "./run_desktop.sh"
+    //"args": ["run", "."]
+  }
+]

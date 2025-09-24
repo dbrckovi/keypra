@@ -142,4 +142,3 @@ draw_word :: proc(env: Environment) {
 		)
 	}
 }
-
